@@ -12852,6 +12852,23 @@ impl IListViewBase {
             ))
         }
     }
+    pub(crate) fn ScrollIntoViewWithAlignment<P0>(
+        &self,
+        item: P0,
+        alignment: ScrollIntoViewAlignment,
+    ) -> windows_core::Result<()>
+    where
+        P0: windows_core::Param<windows_core::IInspectable>,
+    {
+        unsafe {
+            (windows_core::Interface::vtable(self).ScrollIntoViewWithAlignment)(
+                windows_core::Interface::as_raw(self),
+                item.param().abi(),
+                alignment,
+            )
+            .ok()
+        }
+    }
 }
 #[repr(C)]
 pub struct IListViewBase_Vtbl {
@@ -12898,6 +12915,20 @@ pub struct IListViewBase_Vtbl {
     ) -> windows_core::HRESULT,
     pub RemoveDragItemsCompleted:
         unsafe extern "system" fn(*mut core::ffi::c_void, i64) -> windows_core::HRESULT,
+    ContainerContentChanging: usize,
+    RemoveContainerContentChanging: usize,
+    ChoosingItemContainer: usize,
+    RemoveChoosingItemContainer: usize,
+    ChoosingGroupHeaderContainer: usize,
+    RemoveChoosingGroupHeaderContainer: usize,
+    ScrollIntoView: usize,
+    SelectAll: usize,
+    LoadMoreItemsAsync: usize,
+    pub ScrollIntoViewWithAlignment: unsafe extern "system" fn(
+        *mut core::ffi::c_void,
+        *mut core::ffi::c_void,
+        ScrollIntoViewAlignment,
+    ) -> windows_core::HRESULT,
 }
 windows_core::imp::define_interface!(
     IListViewBaseStatics,
@@ -28451,6 +28482,21 @@ impl windows_core::imp::TypeKind for ScrollBarVisibility {
 impl windows_core::RuntimeType for ScrollBarVisibility {
     const SIGNATURE: windows_core::imp::ConstBuffer = windows_core::imp::ConstBuffer::from_slice(
         b"enum(Microsoft.UI.Xaml.Controls.ScrollBarVisibility;i4)",
+    );
+}
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct ScrollIntoViewAlignment(pub i32);
+impl ScrollIntoViewAlignment {
+    pub const Default: Self = Self(0);
+    pub const Leading: Self = Self(1);
+}
+impl windows_core::imp::TypeKind for ScrollIntoViewAlignment {
+    type TypeKind = windows_core::imp::CopyType;
+}
+impl windows_core::RuntimeType for ScrollIntoViewAlignment {
+    const SIGNATURE: windows_core::imp::ConstBuffer = windows_core::imp::ConstBuffer::from_slice(
+        b"enum(Microsoft.UI.Xaml.Controls.ScrollIntoViewAlignment;i4)",
     );
 }
 #[repr(transparent)]

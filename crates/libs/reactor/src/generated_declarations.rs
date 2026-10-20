@@ -3122,6 +3122,8 @@ impl TreeNode {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct ListView(Declaration);
+impl Sealed for ListView {}
+impl ReferenceElement for ListView {}
 impl ListView {
     pub fn new() -> Self {
         let declaration = Declaration::new(ObjectType::ListView);
@@ -3172,6 +3174,7 @@ impl ListView {
         self
     }
     enabled_methods!();
+    reference_methods!(ListView);
     visual_methods!();
     /// Rejects values outside this relation's generated type contract.
     ///

@@ -215,6 +215,9 @@ pub windows_reactor::ScrollBarVisibility::Auto
 pub windows_reactor::ScrollBarVisibility::Disabled
 pub windows_reactor::ScrollBarVisibility::Hidden
 pub windows_reactor::ScrollBarVisibility::Visible
+pub enum windows_reactor::ScrollIntoViewAlignment
+pub windows_reactor::ScrollIntoViewAlignment::Default
+pub windows_reactor::ScrollIntoViewAlignment::Leading
 #[non_exhaustive] pub enum windows_reactor::ScrollingScrollBarVisibility
 pub windows_reactor::ScrollingScrollBarVisibility::Auto
 pub windows_reactor::ScrollingScrollBarVisibility::Hidden
@@ -1417,6 +1420,9 @@ pub fn windows_reactor::ElementRef<windows_reactor::Grid>::request_set_child_vis
 impl windows_reactor::ElementRef<windows_reactor::Image>
 pub fn windows_reactor::ElementRef<windows_reactor::Image>::observe_rasterization_scale(&self, impl core::ops::function::Fn(f64) + 'static) -> windows_reactor::ElementObservation
 pub fn windows_reactor::ElementRef<windows_reactor::Image>::request_set_native_source(&self, core::option::Option<windows_core::unknown::IUnknown>, impl core::ops::function::Fn(core::result::Result<(), windows_reactor::IntegrationError>) + 'static) -> bool
+impl windows_reactor::ElementRef<windows_reactor::ListView>
+pub fn windows_reactor::ElementRef<windows_reactor::ListView>::request_scroll_into_view(&self, usize, windows_reactor::ScrollIntoViewAlignment) -> bool
+pub fn windows_reactor::ElementRef<windows_reactor::ListView>::request_scroll_into_view_result(&self, usize, windows_reactor::ScrollIntoViewAlignment, impl core::ops::function::Fn(core::result::Result<bool, windows_reactor::IntegrationError>) + 'static) -> bool
 impl windows_reactor::ElementRef<windows_reactor::SwapChainPanel>
 pub fn windows_reactor::ElementRef<windows_reactor::SwapChainPanel>::observe_surface(&self, impl core::ops::function::Fn(windows_reactor::SwapChainPanelEvent) + 'static) -> windows_reactor::ElementObservation
 pub fn windows_reactor::ElementRef<windows_reactor::SwapChainPanel>::request_clear_swap_chain(&self, impl core::ops::function::Fn(core::result::Result<(), windows_reactor::IntegrationError>) + 'static) -> bool
@@ -2232,6 +2238,7 @@ pub fn windows_reactor::ListView::can_reorder_items(self, bool) -> Self
 pub fn windows_reactor::ListView::canvas_left(self, f64) -> Self
 pub fn windows_reactor::ListView::canvas_top(self, f64) -> Self
 pub fn windows_reactor::ListView::cursor(self, windows_reactor::CursorShape) -> Self
+pub fn windows_reactor::ListView::element_ref<R>(self, &R) -> Self where R: windows_reactor::CompatibleElementRef<windows_reactor::ListView>
 pub fn windows_reactor::ListView::exit_fade(self, core::time::Duration) -> Self
 pub fn windows_reactor::ListView::exit_transition(self, core::option::Option<windows_reactor::ExitTransition>) -> Self
 pub fn windows_reactor::ListView::grid_column(self, i32) -> Self
@@ -2268,6 +2275,7 @@ impl core::convert::From<windows_reactor::ListView> for windows_reactor::View
 pub fn windows_reactor::View::from(windows_reactor::ListView) -> Self
 impl core::default::Default for windows_reactor::ListView
 pub fn windows_reactor::ListView::default() -> Self
+impl windows_reactor::ReferenceElement for windows_reactor::ListView
 pub struct windows_reactor::ListViewItem(_)
 impl windows_reactor::ListViewItem
 pub fn windows_reactor::ListViewItem::automation_heading_level(self, windows_reactor::AutomationHeadingLevel) -> Self
@@ -4612,6 +4620,7 @@ impl windows_reactor::ReferenceElement for windows_reactor::ComboBox
 impl windows_reactor::ReferenceElement for windows_reactor::Grid
 impl windows_reactor::ReferenceElement for windows_reactor::HyperlinkButton
 impl windows_reactor::ReferenceElement for windows_reactor::Image
+impl windows_reactor::ReferenceElement for windows_reactor::ListView
 impl windows_reactor::ReferenceElement for windows_reactor::NumberBox
 impl windows_reactor::ReferenceElement for windows_reactor::PasswordBox
 impl windows_reactor::ReferenceElement for windows_reactor::RadioButton

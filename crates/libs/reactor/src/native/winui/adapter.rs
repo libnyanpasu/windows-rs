@@ -293,6 +293,25 @@ impl Adapter for WinUiAdapter {
 
     fn imperative(&mut self, request: ImperativeRequest) -> Result<(), Self::Error> {
         match request {
+            ImperativeRequest::ScrollIntoView { object, index, alignment, completion } => {
+                let result = (|| {
+                    let Some(Handle::ListView(list)) = self.handles.get(&object) else {
+                        return Ok(false);
+                    };
+                    let items = list.value.cast::<native::IItemsControl>()?.Items()?;
+                    if index >= items.Size()? as usize {
+                        return Ok(false);
+                    }
+                    let item = items.GetAt(index as u32)?;
+                    let alignment = match alignment {
+                        ScrollIntoViewAlignment::Default => native::ScrollIntoViewAlignment::Default,
+                        ScrollIntoViewAlignment::Leading => native::ScrollIntoViewAlignment::Leading,
+                    };
+                    list.value.cast::<native::IListViewBase>()?.ScrollIntoViewWithAlignment(&item, alignment)?;
+                    Ok::<_, windows_core::Error>(true)
+                })();
+                completion.call(result.map_err(integration_error));
+            }
             ImperativeRequest::Focus { object, completion } => {
                 completion.call(
                     self.focus(object)

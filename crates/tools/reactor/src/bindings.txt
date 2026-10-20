@@ -503,3 +503,5 @@ Microsoft::UI::Xaml::Controls::IItemsControl::{get_ItemContainerStyle, put_ItemC
 Microsoft::UI::Xaml::Controls::IItemContainerMapping::ContainerFromIndex
 Microsoft::UI::Xaml::Controls::IControl::{get_Padding, get_HorizontalContentAlignment}
 Microsoft::UI::Xaml::IFrameworkElement::get_MinHeight
+Microsoft::UI::Xaml::Controls::IListViewBase::ScrollIntoViewWithAlignment
+Microsoft::UI::Xaml::Controls::ScrollIntoViewAlignment

@@ -213,6 +213,47 @@ impl<T> PartialEq for ElementRef<T> {
 
 impl<T> Eq for ElementRef<T> {}
 
+/// Placement requested when revealing a ListView item.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum ScrollIntoViewAlignment {
+    /// Move only as far as needed to reveal the item.
+    #[default]
+    Default,
+    Leading,
+}
+
+impl ElementRef<ListView> {
+    /// Enqueues a scroll request for the item at `index` in the current list.
+    #[must_use]
+    pub fn request_scroll_into_view(
+        &self,
+        index: usize,
+        alignment: ScrollIntoViewAlignment,
+    ) -> bool {
+        self.request_scroll_into_view_result(index, alignment, |_| {})
+    }
+
+    /// Reports whether the native scroll request was accepted. An out-of-range index
+    /// returns `Ok(false)`. Layout completes asynchronously. Detaching or rebinding
+    /// the reference makes pending requests and their completions unavailable.
+    #[must_use]
+    pub fn request_scroll_into_view_result(
+        &self,
+        index: usize,
+        alignment: ScrollIntoViewAlignment,
+        completion: impl Fn(Result<bool, IntegrationError>) + 'static,
+    ) -> bool {
+        self.enqueue(
+            move |object, binding, target| ImperativeRequest::ScrollIntoView {
+                object,
+                index,
+                alignment,
+                completion: current_completion(target, binding, completion),
+            },
+        )
+    }
+}
+
 impl ElementRef<WebView2> {
     #[must_use]
     pub fn request_core_web_view2(
@@ -626,6 +667,12 @@ impl QueuedImperative {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ImperativeRequest {
+    ScrollIntoView {
+        object: ObjectId,
+        index: usize,
+        alignment: ScrollIntoViewAlignment,
+        completion: Callback<Result<bool, IntegrationError>>,
+    },
     Focus {
         object: ObjectId,
         completion: Callback<Result<bool, FocusError>>,
@@ -703,7 +750,7 @@ impl ImperativeRequest {
 
     pub(crate) fn complete_unavailable(&self) {
         match self {
-            Self::Focus { completion, .. } => {
+            Self::Focus { completion, .. } | Self::ScrollIntoView { completion, .. } => {
                 completion.call(Err(IntegrationError::Unavailable));
             }
             Self::InitializeWebView2 { completion, .. } => {

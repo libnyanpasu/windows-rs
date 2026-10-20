@@ -1,6 +1,79 @@
 use super::*;
 
 #[test]
+fn list_scroll_requests_check_bounds_and_reference_lifetime() {
+    let reference = ElementRef::<ListView>::new();
+    assert!(!reference.request_scroll_into_view(0, ScrollIntoViewAlignment::Default));
+    let mut runtime = Runtime::new(RecordingAdapter::default());
+    runtime
+        .update(
+            ListView::new()
+                .element_ref(&reference)
+                .items([DataItem::new("a", "A"), DataItem::new("b", "B")]),
+        )
+        .unwrap();
+    for (index, expected) in [(1, true), (2, false), (usize::MAX, false)] {
+        let result = Rc::new(Cell::new(None));
+        let completed = result.clone();
+        assert!(reference.request_scroll_into_view_result(
+            index,
+            ScrollIntoViewAlignment::Leading,
+            move |value| completed.set(Some(value))
+        ));
+        runtime.dispatch_native_events().unwrap();
+        assert_eq!(result.get(), Some(Ok(expected)));
+    }
+    let result = Rc::new(Cell::new(None));
+    let completed = result.clone();
+    assert!(reference.request_scroll_into_view_result(
+        0,
+        ScrollIntoViewAlignment::Default,
+        move |value| completed.set(Some(value))
+    ));
+    runtime.update(ListView::new()).unwrap();
+    runtime.dispatch_native_events().unwrap();
+    assert_eq!(result.get(), Some(Err(IntegrationError::Unavailable)));
+}
+
+#[test]
+fn list_scroll_completion_cannot_outlive_its_reference_binding() {
+    let commands = Rc::new(RefCell::new(Vec::new()));
+    let reference = ElementRef::<ListView>::new();
+    let result = Rc::new(Cell::new(None));
+    let completed = result.clone();
+    let mut runtime = Runtime::new(HoldingImperativeAdapter {
+        inner: RecordingAdapter::default(),
+        commands: commands.clone(),
+    });
+    runtime
+        .update(ListView::new().element_ref(&reference))
+        .unwrap();
+    assert!(reference.request_scroll_into_view_result(
+        0,
+        ScrollIntoViewAlignment::Leading,
+        move |value| completed.set(Some(value))
+    ));
+    runtime.dispatch_native_events().unwrap();
+    runtime.update(ListView::new()).unwrap();
+    runtime
+        .update(ListView::new().element_ref(&reference))
+        .unwrap();
+    let ImperativeRequest::ScrollIntoView {
+        index,
+        alignment,
+        completion,
+        ..
+    } = commands.borrow_mut().remove(0)
+    else {
+        panic!("expected scroll request")
+    };
+    assert_eq!(index, 0);
+    assert_eq!(alignment, ScrollIntoViewAlignment::Leading);
+    completion.call(Ok(true));
+    assert_eq!(result.get(), Some(Err(IntegrationError::Unavailable)));
+}
+
+#[test]
 fn reference_only_changes_reconcile_without_native_mutations() {
     let reference: ElementRef = ElementRef::default();
     let mut runtime = Runtime::new(RecordingAdapter::default());

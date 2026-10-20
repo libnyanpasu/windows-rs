@@ -1100,6 +1100,21 @@ impl Adapter for RecordingAdapter {
         }
         self.imperatives.push(request.clone());
         match request {
+            ImperativeRequest::ScrollIntoView {
+                object,
+                index,
+                completion,
+                ..
+            } => {
+                let list = &self.objects[&object];
+                let result = if list.kind != ObjectType::ListView {
+                    Err(IntegrationError::Unavailable)
+                } else {
+                    Ok(matches!(list.relations.get(&RelationId::Items),
+                        Some(RecordedRelation::Many(items)) if index < items.len()))
+                };
+                completion.call(result);
+            }
             ImperativeRequest::Focus { completion, .. } => {
                 completion.call(Ok(true));
             }
