@@ -1,6 +1,44 @@
 use super::*;
 
 #[test]
+#[ignore = "initializes WinUI; run alone on a Windows desktop (no injected input)"]
+fn border_cursor_round_trips_through_the_protected_interface() {
+    App::run_with(|app| {
+        let mut runtime = Runtime::new(WinUiAdapter::default());
+        runtime
+            .update(Border::new().cursor(CursorShape::SizeWestEast))
+            .unwrap();
+        let root = runtime.graph().root().unwrap();
+        let element = runtime
+            .adapter()
+            .ui_element(root)?
+            .cast::<native::IUIElementProtected>()?;
+        assert_eq!(
+            element
+                .ProtectedCursor()?
+                .cast::<native::InputSystemCursor>()?
+                .CursorShape()?,
+            native::InputSystemCursorShape::SizeWestEast
+        );
+        runtime
+            .update(Border::new().cursor(CursorShape::Hand))
+            .unwrap();
+        assert_eq!(
+            element
+                .ProtectedCursor()?
+                .cast::<native::InputSystemCursor>()?
+                .CursorShape()?,
+            native::InputSystemCursorShape::Hand
+        );
+        runtime.update(Border::new()).unwrap();
+        assert!(element.ProtectedCursor().is_err()); // WinRT null interface result.
+        app.proxy().exit()?;
+        Ok(runtime)
+    })
+    .unwrap();
+}
+
+#[test]
 fn image_load_subscriptions_complete_once_and_do_not_retain_controls() {
     let state = ImageLoadState::default();
     let values = Rc::new(RefCell::new(Vec::new()));

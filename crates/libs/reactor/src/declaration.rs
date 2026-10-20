@@ -256,6 +256,27 @@ impl ThemeBrush {
     }
 }
 
+/// A system pointer cursor displayed while an element is hit-tested or captures input.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CursorShape {
+    Arrow,
+    Cross,
+    Hand,
+    Help,
+    IBeam,
+    SizeAll,
+    SizeNortheastSouthwest,
+    SizeNorthSouth,
+    SizeNorthwestSoutheast,
+    SizeWestEast,
+    UniversalNo,
+    UpArrow,
+    Wait,
+    Pin,
+    Person,
+    AppStarting,
+}
+
 /// A theme resource brush or a fixed solid color.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Brush {
@@ -1118,6 +1139,7 @@ pub enum PropertyValue {
     Bool(bool),
     Brush(Brush),
     ButtonStyle(ButtonStyle),
+    CursorShape(CursorShape),
     Color(Color),
     CornerRadius(CornerRadius),
     DateTime(DateTime),

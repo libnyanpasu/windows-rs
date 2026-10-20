@@ -348,6 +348,7 @@ pub(crate) fn validate_property(kind: ObjectType, property: &Property) -> Result
         | (ValueType::Bool, PropertyValue::Bool(_))
         | (ValueType::Brush, PropertyValue::Brush(_))
         | (ValueType::ButtonStyle, PropertyValue::ButtonStyle(_))
+        | (ValueType::CursorShape, PropertyValue::CursorShape(_))
         | (ValueType::Color, PropertyValue::Color(_))
         | (ValueType::CornerRadius, PropertyValue::CornerRadius(_))
         | (ValueType::DateTime, PropertyValue::DateTime(_))

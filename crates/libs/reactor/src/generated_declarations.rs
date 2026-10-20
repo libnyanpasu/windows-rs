@@ -1812,6 +1812,12 @@ macro_rules! visual_methods {
                 .property(PropertyId::Width, PropertyValue::F64(width));
             self
         }
+        pub fn cursor(mut self, cursor: CursorShape) -> Self {
+            self.0 = self
+                .0
+                .property(PropertyId::Cursor, PropertyValue::CursorShape(cursor));
+            self
+        }
         pub fn height(mut self, height: f64) -> Self {
             self.0 = self
                 .0

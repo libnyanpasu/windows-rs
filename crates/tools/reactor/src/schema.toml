@@ -90,6 +90,11 @@ name = "Width"
 owner = "Microsoft.UI.Xaml.FrameworkElement"
 
 [[visual_properties]]
+name = "Cursor"
+owner = "Microsoft.UI.Xaml.UIElement"
+adapter = "pointer_cursor"
+
+[[visual_properties]]
 name = "Height"
 owner = "Microsoft.UI.Xaml.FrameworkElement"
 

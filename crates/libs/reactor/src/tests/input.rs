@@ -1,6 +1,34 @@
 use super::*;
 
 #[test]
+fn pointer_cursor_sets_updates_and_clears_without_replacing_the_element() {
+    let mut runtime = Runtime::new(RecordingAdapter::default());
+    runtime
+        .update(Border::new().cursor(CursorShape::SizeWestEast))
+        .unwrap();
+    let border = runtime.graph().root().unwrap();
+    runtime
+        .update(Border::new().cursor(CursorShape::Hand))
+        .unwrap();
+    assert_eq!(runtime.graph().root(), Some(border));
+    assert!(
+        runtime
+            .graph()
+            .properties(border)
+            .unwrap()
+            .contains(&Property {
+                id: PropertyId::Cursor,
+                value: PropertyValue::CursorShape(CursorShape::Hand),
+            })
+    );
+    let changes = runtime.update(Border::new()).unwrap();
+    assert!(changes.iter().any(|change| matches!(change,
+        Mutation::SetProperties { object, clear, .. }
+        if *object == border && clear.contains(&PropertyId::Cursor)
+    )));
+}
+
+#[test]
 fn pointer_event_payload_round_trips_through_recording_protocol() {
     let received = Rc::new(RefCell::new(None));
     let received_for_callback = Rc::clone(&received);

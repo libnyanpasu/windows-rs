@@ -189,6 +189,7 @@ enum PropertyAdapter {
     OptionalDateTime,
     PathData,
     PointerCapture,
+    PointerCursor,
     PointerFocus,
     RatingValue,
     ResourceOverrides,
@@ -221,6 +222,7 @@ impl PropertyAdapter {
             Self::NumberBoxValue | Self::RatingValue => "OptionalF64",
             Self::OptionalDateTime => "OptionalDateTime",
             Self::PointerCapture | Self::PointerFocus => "Bool",
+            Self::PointerCursor => "CursorShape",
             Self::ResourceOverrides => "ResourceOverrides",
             Self::ResourceStyle => "ButtonStyle",
             Self::RichTextBlocks => "RichText",
@@ -1963,6 +1965,15 @@ fn generate_native(schema: &Schema, metadata: &tool_reactor_metadata::MetadataRe
     }
     for property in &schema.visual_properties {
         let owner = property.owner.rsplit('.').next().unwrap();
+        if property.adapter == Some(PropertyAdapter::PointerCursor) {
+            output.push_str(&format!(
+                "(PropertyId::{}, None) => Some(set_pointer_cursor(element, None)),\n\
+                 (PropertyId::{}, Some(PropertyValue::CursorShape(value))) => \
+                 Some(set_pointer_cursor(element, Some(*value))),\n",
+                property.name, property.name
+            ));
+            continue;
+        }
         if property.value == "ThemeTransitions" {
             output.push_str(&format!(
                 "(PropertyId::{}, Some(PropertyValue::ThemeTransitions(values))) => Some((|| {{\n\
@@ -2864,6 +2875,7 @@ fn generate(schema: &Schema, metadata: &tool_reactor_metadata::MetadataResolver)
              Bool,\n\
              Brush,\n\
              ButtonStyle,\n\
+             CursorShape,\n\
              ContentDialogResult,\n\
              CharacterEventInfo,\n\
              Color,\n\
@@ -3863,6 +3875,7 @@ fn property_value_parts(value: &str, name: &str) -> String {
         "Bool" => format!("PropertyValue::Bool({name})"),
         "Brush" => format!("PropertyValue::Brush({name}.into())"),
         "ButtonStyle" => format!("PropertyValue::ButtonStyle({name})"),
+        "CursorShape" => format!("PropertyValue::CursorShape({name})"),
         "Color" => format!("PropertyValue::Color({name})"),
         "CornerRadius" => format!("PropertyValue::CornerRadius({name})"),
         "DateTime" => format!("PropertyValue::DateTime({name})"),
@@ -3952,6 +3965,7 @@ fn is_builtin_value(value: &str) -> bool {
             | "Bool"
             | "Brush"
             | "ButtonStyle"
+            | "CursorShape"
             | "Color"
             | "CornerRadius"
             | "DateTime"

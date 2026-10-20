@@ -3035,6 +3035,10 @@ impl GeneratedHandle {
                     .map_err(Into::into)
                     .and_then(|object| object.SetWidth(*value).map_err(Into::into)),
             ),
+            (PropertyId::Cursor, None) => Some(set_pointer_cursor(element, None)),
+            (PropertyId::Cursor, Some(PropertyValue::CursorShape(value))) => {
+                Some(set_pointer_cursor(element, Some(*value)))
+            }
             (PropertyId::Height, None) => Some(
                 element
                     .cast::<native::IDependencyObject>()

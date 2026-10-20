@@ -1,3 +1,34 @@
+fn set_pointer_cursor(
+    element: &native::UIElement,
+    value: Option<CursorShape>,
+) -> Result<(), WinUiError> {
+    // WinRT protected interfaces are available through QI on the native element.
+    let element = element.cast::<native::IUIElementProtected>()?;
+    let Some(value) = value else {
+        return element.SetProtectedCursor(None::<&native::InputCursor>).map_err(Into::into);
+    };
+    let shape = match value {
+        CursorShape::Arrow => native::InputSystemCursorShape::Arrow,
+        CursorShape::Cross => native::InputSystemCursorShape::Cross,
+        CursorShape::Hand => native::InputSystemCursorShape::Hand,
+        CursorShape::Help => native::InputSystemCursorShape::Help,
+        CursorShape::IBeam => native::InputSystemCursorShape::IBeam,
+        CursorShape::SizeAll => native::InputSystemCursorShape::SizeAll,
+        CursorShape::SizeNortheastSouthwest => native::InputSystemCursorShape::SizeNortheastSouthwest,
+        CursorShape::SizeNorthSouth => native::InputSystemCursorShape::SizeNorthSouth,
+        CursorShape::SizeNorthwestSoutheast => native::InputSystemCursorShape::SizeNorthwestSoutheast,
+        CursorShape::SizeWestEast => native::InputSystemCursorShape::SizeWestEast,
+        CursorShape::UniversalNo => native::InputSystemCursorShape::UniversalNo,
+        CursorShape::UpArrow => native::InputSystemCursorShape::UpArrow,
+        CursorShape::Wait => native::InputSystemCursorShape::Wait,
+        CursorShape::Pin => native::InputSystemCursorShape::Pin,
+        CursorShape::Person => native::InputSystemCursorShape::Person,
+        CursorShape::AppStarting => native::InputSystemCursorShape::AppStarting,
+    };
+    element.SetProtectedCursor(&native::InputSystemCursor::Create(shape)?)?;
+    Ok(())
+}
+
 impl WinUiAdapter {
     fn set_resource_overrides(
         &mut self,

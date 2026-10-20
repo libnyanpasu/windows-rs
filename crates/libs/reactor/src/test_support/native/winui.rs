@@ -1,6 +1,17 @@
 use super::*;
 
 impl WinUiAdapter {
+    /// Reads the WinUI system-cursor discriminant for native integration tests.
+    pub fn pointer_cursor_shape(&self, object: ObjectId) -> Result<i32, WinUiError> {
+        Ok(self
+            .ui_element(object)?
+            .cast::<native::IUIElementProtected>()?
+            .ProtectedCursor()?
+            .cast::<native::InputSystemCursor>()?
+            .CursorShape()?
+            .0)
+    }
+
     pub(crate) fn realize_virtual_item(
         &self,
         object: ObjectId,
