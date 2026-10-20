@@ -499,3 +499,7 @@ Microsoft::UI::Input::IInputSystemCursor::get_CursorShape
 Microsoft::UI::Input::InputSystemCursor::Create
 Microsoft::UI::Input::InputSystemCursorShape
 Microsoft::UI::Xaml::IUIElementProtected::{get_ProtectedCursor, put_ProtectedCursor}
+Microsoft::UI::Xaml::Controls::IItemsControl::{get_ItemContainerStyle, put_ItemContainerStyle}
+Microsoft::UI::Xaml::Controls::IItemContainerMapping::ContainerFromIndex
+Microsoft::UI::Xaml::Controls::IControl::{get_Padding, get_HorizontalContentAlignment}
+Microsoft::UI::Xaml::IFrameworkElement::get_MinHeight

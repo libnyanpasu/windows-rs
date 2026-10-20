@@ -182,6 +182,7 @@ enum PropertyAdapter {
     ImplicitTranslationTransition,
     InspectableString,
     InspectableStringList,
+    ItemContainer,
     KeyAccelerators,
     NativeColor,
     NumberBoxValue,
@@ -217,6 +218,7 @@ impl PropertyAdapter {
             Self::ImplicitTranslation => "Vector2",
             Self::InspectableString | Self::PathData | Self::RichEditText | Self::Uri => "String",
             Self::InspectableStringList => "StringList",
+            Self::ItemContainer => "ItemContainerOptions",
             Self::KeyAccelerators => "KeyAccelerators",
             Self::NativeColor => "Color",
             Self::NumberBoxValue | Self::RatingValue => "OptionalF64",
@@ -239,6 +241,7 @@ impl PropertyAdapter {
             Self::GridColumns => Some("columns"),
             Self::KeyAccelerators => Some("key_accelerators"),
             Self::ResourceOverrides => Some("resource_overrides"),
+            Self::ItemContainer => Some("item_container"),
             _ => None,
         }
     }
@@ -2474,6 +2477,14 @@ fn emit_native_property_arms(
     target_class: &str,
     metadata: &tool_reactor_metadata::MetadataResolver,
 ) {
+    if adapter == Some(PropertyAdapter::ItemContainer) {
+        output.push_str(&format!(
+            "{pattern}None) => Some(set_list_item_container({target}, None)),\n\
+             {pattern}Some(PropertyValue::ItemContainerOptions(value))) => \
+             Some(set_list_item_container({target}, Some(value))),\n"
+        ));
+        return;
+    }
     if adapter.is_some_and(PropertyAdapter::uses_framework_element) {
         return;
     }
@@ -2892,6 +2903,7 @@ fn generate(schema: &Schema, metadata: &tool_reactor_metadata::MetadataResolver)
              I32,\n\
              Icon,\n\
              ImageSource,\n\
+             ItemContainerOptions,\n\
              KeyAccelerators,\n\
              KeyEventInfo,\n\
              NavigationViewDisplayMode,\n\
@@ -3889,6 +3901,7 @@ fn property_value_parts(value: &str, name: &str) -> String {
         "I32" => format!("PropertyValue::I32({name})"),
         "Icon" => format!("PropertyValue::Icon({name}.into())"),
         "ImageSource" => format!("PropertyValue::ImageSource({name})"),
+        "ItemContainerOptions" => format!("PropertyValue::ItemContainerOptions({name})"),
         "KeyAccelerators" => format!("PropertyValue::KeyAccelerators({name})"),
         "OptionalF64" => format!("PropertyValue::OptionalF64({name}.into())"),
         "OptionalBool" => format!("PropertyValue::OptionalBool({name}.into())"),
@@ -3979,6 +3992,7 @@ fn is_builtin_value(value: &str) -> bool {
             | "I32"
             | "Icon"
             | "ImageSource"
+            | "ItemContainerOptions"
             | "KeyAccelerators"
             | "OptionalDateTime"
             | "OptionalF64"

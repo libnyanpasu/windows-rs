@@ -3492,6 +3492,14 @@ impl GeneratedHandle {
                             .map_err(Into::into)
                     }),
             ),
+            (ObjectType::ListView, PropertyId::ItemContainerStyle, None) => {
+                Some(set_list_item_container(element, None))
+            }
+            (
+                ObjectType::ListView,
+                PropertyId::ItemContainerStyle,
+                Some(PropertyValue::ItemContainerOptions(value)),
+            ) => Some(set_list_item_container(element, Some(value))),
             (ObjectType::ListView, PropertyId::SelectionMode, None) => Some(
                 element
                     .cast::<native::IDependencyObject>()

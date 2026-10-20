@@ -12,6 +12,44 @@ impl WinUiAdapter {
             .0)
     }
 
+    /// Reads a realized container's padding, minimum height and content alignment.
+    pub fn list_item_container_properties(
+        &self,
+        object: ObjectId,
+        index: usize,
+    ) -> Result<(Thickness, f64, HorizontalAlignment), WinUiError> {
+        let index = i32::try_from(index).map_err(|_| WinUiError::IndexOverflow(index))?;
+        let container = self
+            .ui_element(object)?
+            .cast::<native::IItemContainerMapping>()?
+            .ContainerFromIndex(index)?;
+        let control = container.cast::<native::IControl>()?;
+        let padding = control.Padding()?;
+        let alignment = match control.HorizontalContentAlignment()? {
+            native::HorizontalAlignment::Left => HorizontalAlignment::Left,
+            native::HorizontalAlignment::Center => HorizontalAlignment::Center,
+            native::HorizontalAlignment::Right => HorizontalAlignment::Right,
+            _ => HorizontalAlignment::Stretch,
+        };
+        Ok((
+            Thickness::new(padding.left, padding.top, padding.right, padding.bottom),
+            container.cast::<native::IFrameworkElement>()?.MinHeight()?,
+            alignment,
+        ))
+    }
+
+    /// Obtains the current native item-container style for integration tests.
+    pub fn list_item_container_style(
+        &self,
+        object: ObjectId,
+    ) -> Result<windows_core::IUnknown, WinUiError> {
+        Ok(self
+            .ui_element(object)?
+            .cast::<native::IItemsControl>()?
+            .ItemContainerStyle()?
+            .into())
+    }
+
     pub(crate) fn realize_virtual_item(
         &self,
         object: ObjectId,

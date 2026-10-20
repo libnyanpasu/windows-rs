@@ -29,6 +29,55 @@ fn set_pointer_cursor(
     Ok(())
 }
 
+fn set_list_item_container(
+    element: &native::UIElement,
+    value: Option<&ItemContainerOptions>,
+) -> Result<(), WinUiError> {
+    let items = element.cast::<native::IItemsControl>()?;
+    let Some(value) = value else {
+        items.SetItemContainerStyle(None::<&native::Style>)?;
+        return Ok(());
+    };
+    let mut xaml = String::from(
+        "<Style xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='ListViewItem'>",
+    );
+    if let Some(padding) = value.padding {
+        xaml.push_str(&format!(
+            "<Setter Property='Padding' Value='{},{},{},{}'/>",
+            padding.left, padding.top, padding.right, padding.bottom
+        ));
+    }
+    if let Some(height) = value.min_height {
+        xaml.push_str(&format!("<Setter Property='MinHeight' Value='{height}'/>"));
+    }
+    if let Some(alignment) = value.horizontal_content_alignment {
+        let alignment = match alignment {
+            HorizontalAlignment::Left => "Left",
+            HorizontalAlignment::Center => "Center",
+            HorizontalAlignment::Right => "Right",
+            HorizontalAlignment::Stretch => "Stretch",
+        };
+        xaml.push_str(&format!("<Setter Property='HorizontalContentAlignment' Value='{alignment}'/>"));
+    }
+    if value.suppress_selection_visuals {
+        // Keep the ListViewItem itself: only its chrome is replaced, so focus,
+        // keyboard navigation, virtualization and UI Automation still belong to WinUI.
+        xaml.push_str(
+            "<Setter Property='Template'><Setter.Value><ControlTemplate TargetType='ListViewItem'>\
+             <ContentPresenter Content='{TemplateBinding Content}' \
+             ContentTemplate='{TemplateBinding ContentTemplate}' \
+             ContentTransitions='{TemplateBinding ContentTransitions}' \
+             Padding='{TemplateBinding Padding}' \
+             HorizontalContentAlignment='{TemplateBinding HorizontalContentAlignment}' \
+             VerticalContentAlignment='{TemplateBinding VerticalContentAlignment}'/>\
+             </ControlTemplate></Setter.Value></Setter>",
+        );
+    }
+    xaml.push_str("</Style>");
+    items.SetItemContainerStyle(&native::XamlReader::Load(&xaml)?.cast::<native::Style>()?)?;
+    Ok(())
+}
+
 impl WinUiAdapter {
     fn set_resource_overrides(
         &mut self,

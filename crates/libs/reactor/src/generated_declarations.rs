@@ -3127,6 +3127,17 @@ impl ListView {
         let declaration = Declaration::new(ObjectType::ListView);
         Self(declaration)
     }
+    pub fn item_container(mut self, item_container: ItemContainerOptions) -> Self {
+        assert!(
+            item_container.is_finite_non_negative(),
+            "ListView.ItemContainerStyle requires finite_non_negative"
+        );
+        self.0 = self.0.property(
+            PropertyId::ItemContainerStyle,
+            PropertyValue::ItemContainerOptions(item_container),
+        );
+        self
+    }
     pub fn selection_mode(mut self, selection_mode: ListViewSelectionMode) -> Self {
         self.0 = self
             .0

@@ -1,6 +1,48 @@
 use super::*;
 
 #[test]
+fn list_item_container_options_reconcile_and_validate_dimensions() {
+    let options = ItemContainerOptions {
+        padding: Some(Thickness::uniform(0.0)),
+        min_height: Some(40.0),
+        horizontal_content_alignment: Some(HorizontalAlignment::Stretch),
+        suppress_selection_visuals: true,
+    };
+    let mut runtime = Runtime::new(RecordingAdapter::default());
+    runtime
+        .update(ListView::new().item_container(options))
+        .unwrap();
+    let list = runtime.graph().root().unwrap();
+    assert!(
+        runtime
+            .update(ListView::new().item_container(options))
+            .unwrap()
+            .is_empty()
+    );
+    let changes = runtime.update(ListView::new()).unwrap();
+    assert!(changes.iter().any(|change| matches!(change,
+        Mutation::SetProperties { object, clear, .. }
+        if *object == list && clear.contains(&PropertyId::ItemContainerStyle)
+    )));
+    for height in [-1.0, f64::INFINITY, f64::NAN] {
+        assert!(
+            std::panic::catch_unwind(|| ListView::new().item_container(ItemContainerOptions {
+                min_height: Some(height),
+                ..options
+            }))
+            .is_err()
+        );
+    }
+    assert!(
+        std::panic::catch_unwind(|| ListView::new().item_container(ItemContainerOptions {
+            padding: Some(Thickness::uniform(-1.0)),
+            ..options
+        }))
+        .is_err()
+    );
+}
+
+#[test]
 fn theme_brush_tokens_use_winui_resource_keys() {
     for (brush, key) in [
         (

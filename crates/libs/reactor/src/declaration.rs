@@ -305,6 +305,27 @@ pub enum ButtonStyle {
     TextLink,
 }
 
+/// Presentation of current and subsequently realized native ListViewItem containers.
+/// Omitted values retain the native style defaults.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct ItemContainerOptions {
+    pub padding: Option<Thickness>,
+    pub min_height: Option<f64>,
+    pub horizontal_content_alignment: Option<HorizontalAlignment>,
+    /// Uses a content-only template; selection, focus and automation remain native-owned.
+    /// The application supplies its own hover and selection chrome.
+    pub suppress_selection_visuals: bool,
+}
+
+impl ItemContainerOptions {
+    pub(crate) fn is_finite_non_negative(self) -> bool {
+        self.padding.is_none_or(Thickness::is_finite_non_negative)
+            && self
+                .min_height
+                .is_none_or(|height| height.is_finite() && height >= 0.0)
+    }
+}
+
 /// A supported WinUI resource override value.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ResourceValue {
@@ -1151,6 +1172,7 @@ pub enum PropertyValue {
     I32(i32),
     Icon(Icon),
     ImageSource(ImageSource),
+    ItemContainerOptions(ItemContainerOptions),
     KeyAccelerators(KeyAccelerators),
     OptionalF64(Option<f64>),
     OptionalBool(Option<bool>),

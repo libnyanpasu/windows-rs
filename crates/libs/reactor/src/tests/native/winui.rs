@@ -2,6 +2,86 @@ use super::*;
 
 #[test]
 #[ignore = "initializes WinUI; run alone on a Windows desktop (no injected input)"]
+fn list_item_container_style_applies_to_realized_items_and_clears() {
+    App::run_with(|app| {
+        let options = ItemContainerOptions {
+            padding: Some(Thickness::uniform(0.0)),
+            min_height: Some(40.0),
+            horizontal_content_alignment: Some(HorizontalAlignment::Stretch),
+            suppress_selection_visuals: true,
+        };
+        let view = || {
+            ListView::new()
+                .height(160.0)
+                .item_container(options)
+                .items((0usize..30).map(|i| {
+                    DataItem::new(i, i.to_string())
+                        .content(TextBlock::new().text(i.to_string()).height(40.0))
+                }))
+        };
+        let mut runtime = Runtime::new(WinUiAdapter::default());
+        runtime.update(view()).unwrap();
+        let root = runtime.graph().root().unwrap();
+        let window = runtime
+            .adapter_mut()
+            .create_window_with_policy(root, &WindowPolicy::new().client_size(300.0, 200.0))?;
+        window.activate()?;
+        let element = runtime.adapter().ui_element(root)?;
+        let runtime = RefCell::new(runtime);
+        let app = app.clone();
+        let timer = native::DispatcherQueue::GetForCurrentThread()?.CreateTimer()?;
+        timer.SetInterval(TimeSpan::try_from(Duration::from_millis(50)).unwrap())?;
+        let tick = timer.Tick(move |sender, _| {
+            sender.as_ref().unwrap().Stop().unwrap();
+            element.UpdateLayout().unwrap();
+            let mapping = element.cast::<native::IItemContainerMapping>().unwrap();
+            let container = mapping.ContainerFromIndex(0).unwrap();
+            assert_eq!(
+                container
+                    .cast::<native::IControl>()
+                    .unwrap()
+                    .Padding()
+                    .unwrap(),
+                native::Thickness::default()
+            );
+            assert_eq!(
+                container
+                    .cast::<native::IControl>()
+                    .unwrap()
+                    .HorizontalContentAlignment()
+                    .unwrap(),
+                native::HorizontalAlignment::Stretch
+            );
+            assert_eq!(
+                container
+                    .cast::<native::IFrameworkElement>()
+                    .unwrap()
+                    .MinHeight()
+                    .unwrap(),
+                40.0
+            );
+            runtime
+                .borrow_mut()
+                .update(ListView::new().items([]))
+                .unwrap();
+            assert!(
+                element
+                    .cast::<native::IItemsControl>()
+                    .unwrap()
+                    .ItemContainerStyle()
+                    .is_err()
+            );
+            window.close().unwrap();
+            app.exit().unwrap();
+        })?;
+        timer.Start()?;
+        Ok((timer, tick))
+    })
+    .unwrap();
+}
+
+#[test]
+#[ignore = "initializes WinUI; run alone on a Windows desktop (no injected input)"]
 fn border_cursor_round_trips_through_the_protected_interface() {
     App::run_with(|app| {
         let mut runtime = Runtime::new(WinUiAdapter::default());

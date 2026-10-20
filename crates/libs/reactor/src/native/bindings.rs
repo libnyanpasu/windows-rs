@@ -8615,6 +8615,26 @@ impl IControl {
             .ok()
         }
     }
+    pub(crate) fn Padding(&self) -> windows_core::Result<Thickness> {
+        unsafe {
+            let mut result__ = core::mem::zeroed();
+            (windows_core::Interface::vtable(self).Padding)(
+                windows_core::Interface::as_raw(self),
+                &mut result__,
+            )
+            .map(|| result__)
+        }
+    }
+    pub(crate) fn HorizontalContentAlignment(&self) -> windows_core::Result<HorizontalAlignment> {
+        unsafe {
+            let mut result__ = core::mem::zeroed();
+            (windows_core::Interface::vtable(self).HorizontalContentAlignment)(
+                windows_core::Interface::as_raw(self),
+                &mut result__,
+            )
+            .map(|| result__)
+        }
+    }
     pub(crate) fn SetHorizontalContentAlignment(
         &self,
         value: HorizontalAlignment,
@@ -8705,9 +8725,13 @@ pub struct IControl_Vtbl {
     SetTabNavigation: usize,
     Template: usize,
     SetTemplate: usize,
-    Padding: usize,
+    pub Padding:
+        unsafe extern "system" fn(*mut core::ffi::c_void, *mut Thickness) -> windows_core::HRESULT,
     SetPadding: usize,
-    HorizontalContentAlignment: usize,
+    pub HorizontalContentAlignment: unsafe extern "system" fn(
+        *mut core::ffi::c_void,
+        *mut HorizontalAlignment,
+    ) -> windows_core::HRESULT,
     pub SetHorizontalContentAlignment: unsafe extern "system" fn(
         *mut core::ffi::c_void,
         HorizontalAlignment,
@@ -10643,6 +10667,16 @@ impl IFrameworkElement {
             .ok()
         }
     }
+    pub(crate) fn MinHeight(&self) -> windows_core::Result<f64> {
+        unsafe {
+            let mut result__ = core::mem::zeroed();
+            (windows_core::Interface::vtable(self).MinHeight)(
+                windows_core::Interface::as_raw(self),
+                &mut result__,
+            )
+            .map(|| result__)
+        }
+    }
     pub(crate) fn SetMinHeight(&self, value: f64) -> windows_core::Result<()> {
         unsafe {
             (windows_core::Interface::vtable(self).SetMinHeight)(
@@ -10870,7 +10904,8 @@ pub struct IFrameworkElement_Vtbl {
     MaxWidth: usize,
     pub SetMaxWidth:
         unsafe extern "system" fn(*mut core::ffi::c_void, f64) -> windows_core::HRESULT,
-    MinHeight: usize,
+    pub MinHeight:
+        unsafe extern "system" fn(*mut core::ffi::c_void, *mut f64) -> windows_core::HRESULT,
     pub SetMinHeight:
         unsafe extern "system" fn(*mut core::ffi::c_void, f64) -> windows_core::HRESULT,
     MaxHeight: usize,
@@ -12089,6 +12124,45 @@ pub struct IItemContainer_Vtbl {
         unsafe extern "system" fn(*mut core::ffi::c_void, bool) -> windows_core::HRESULT,
 }
 windows_core::imp::define_interface!(
+    IItemContainerMapping,
+    IItemContainerMapping_Vtbl,
+    0xb3e03a32_ea83_5626_bfda_d327a1c7550c
+);
+impl windows_core::RuntimeType for IItemContainerMapping {
+    const SIGNATURE: windows_core::imp::ConstBuffer =
+        windows_core::imp::ConstBuffer::for_interface::<Self>();
+}
+windows_core::imp::interface_hierarchy!(
+    IItemContainerMapping,
+    windows_core::IUnknown,
+    windows_core::IInspectable
+);
+impl IItemContainerMapping {
+    pub(crate) fn ContainerFromIndex(&self, index: i32) -> windows_core::Result<DependencyObject> {
+        unsafe {
+            let mut result__ = core::mem::zeroed();
+            (windows_core::Interface::vtable(self).ContainerFromIndex)(
+                windows_core::Interface::as_raw(self),
+                index,
+                &mut result__,
+            )
+            .and_then(|| windows_core::imp::Type::from_abi(result__))
+        }
+    }
+}
+#[repr(C)]
+pub struct IItemContainerMapping_Vtbl {
+    pub base__: windows_core::IInspectable_Vtbl,
+    ItemFromContainer: usize,
+    ContainerFromItem: usize,
+    IndexFromContainer: usize,
+    pub ContainerFromIndex: unsafe extern "system" fn(
+        *mut core::ffi::c_void,
+        i32,
+        *mut *mut core::ffi::c_void,
+    ) -> windows_core::HRESULT,
+}
+windows_core::imp::define_interface!(
     IItemContainerStatics,
     IItemContainerStatics_Vtbl,
     0xe26e121d_b7bf_5632_85a2_f36040e649f8
@@ -12150,6 +12224,28 @@ impl IItemsControl {
             .ok()
         }
     }
+    pub(crate) fn ItemContainerStyle(&self) -> windows_core::Result<Style> {
+        unsafe {
+            let mut result__ = core::mem::zeroed();
+            (windows_core::Interface::vtable(self).ItemContainerStyle)(
+                windows_core::Interface::as_raw(self),
+                &mut result__,
+            )
+            .and_then(|| windows_core::imp::Type::from_abi(result__))
+        }
+    }
+    pub(crate) fn SetItemContainerStyle<P0>(&self, value: P0) -> windows_core::Result<()>
+    where
+        P0: windows_core::Param<Style>,
+    {
+        unsafe {
+            (windows_core::Interface::vtable(self).SetItemContainerStyle)(
+                windows_core::Interface::as_raw(self),
+                value.param().abi(),
+            )
+            .ok()
+        }
+    }
 }
 #[repr(C)]
 pub struct IItemsControl_Vtbl {
@@ -12165,6 +12261,21 @@ pub struct IItemsControl_Vtbl {
     ) -> windows_core::HRESULT,
     ItemTemplate: usize,
     pub SetItemTemplate: unsafe extern "system" fn(
+        *mut core::ffi::c_void,
+        *mut core::ffi::c_void,
+    ) -> windows_core::HRESULT,
+    ItemTemplateSelector: usize,
+    SetItemTemplateSelector: usize,
+    ItemsPanel: usize,
+    SetItemsPanel: usize,
+    DisplayMemberPath: usize,
+    SetDisplayMemberPath: usize,
+    ItemsPanelRoot: usize,
+    pub ItemContainerStyle: unsafe extern "system" fn(
+        *mut core::ffi::c_void,
+        *mut *mut core::ffi::c_void,
+    ) -> windows_core::HRESULT,
+    pub SetItemContainerStyle: unsafe extern "system" fn(
         *mut core::ffi::c_void,
         *mut core::ffi::c_void,
     ) -> windows_core::HRESULT,

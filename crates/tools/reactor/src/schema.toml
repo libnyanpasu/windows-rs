@@ -636,6 +636,11 @@ enabled = true
 handwritten = true
 
 [[objects.properties]]
+name = "ItemContainerStyle"
+adapter = "item_container"
+validation = "finite_non_negative"
+
+[[objects.properties]]
 name = "SelectionMode"
 
 [[objects.properties]]

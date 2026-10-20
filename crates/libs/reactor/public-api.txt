@@ -2025,6 +2025,11 @@ pub const windows_reactor::InputModifiers::WINDOWS: Self
 pub const fn windows_reactor::InputModifiers::contains(self, Self) -> bool
 impl core::ops::bit::BitOrAssign for windows_reactor::InputModifiers
 pub fn windows_reactor::InputModifiers::bitor_assign(&mut self, Self)
+pub struct windows_reactor::ItemContainerOptions
+pub windows_reactor::ItemContainerOptions::horizontal_content_alignment: core::option::Option<windows_reactor::HorizontalAlignment>
+pub windows_reactor::ItemContainerOptions::min_height: core::option::Option<f64>
+pub windows_reactor::ItemContainerOptions::padding: core::option::Option<windows_reactor::Thickness>
+pub windows_reactor::ItemContainerOptions::suppress_selection_visuals: bool
 pub struct windows_reactor::ItemsRepeater(_)
 impl windows_reactor::ItemsRepeater
 pub fn windows_reactor::ItemsRepeater::automation_heading_level(self, windows_reactor::AutomationHeadingLevel) -> Self
@@ -2236,6 +2241,7 @@ pub fn windows_reactor::ListView::grid_row_span(self, i32) -> Self
 pub fn windows_reactor::ListView::height(self, f64) -> Self
 pub fn windows_reactor::ListView::horizontal_alignment(self, windows_reactor::HorizontalAlignment) -> Self
 pub fn windows_reactor::ListView::is_enabled(self, bool) -> Self
+pub fn windows_reactor::ListView::item_container(self, windows_reactor::ItemContainerOptions) -> Self
 pub fn windows_reactor::ListView::items(self, impl core::iter::traits::collect::IntoIterator<Item = windows_reactor::DataItem>) -> Self
 pub fn windows_reactor::ListView::margin(self, impl core::convert::Into<windows_reactor::Thickness>) -> Self
 pub fn windows_reactor::ListView::max_height(self, f64) -> Self
