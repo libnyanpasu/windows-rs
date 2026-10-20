@@ -131,6 +131,11 @@ impl AppContext {
             }
             Ok::<_, windows_core::Error>(host.as_ref().unwrap().handle())
         })?;
+        // A new request replaces the open menu, as a second right-click does in Windows. Its
+        // dismissal may not have been observed yet, which would otherwise refuse every request.
+        if handle.is_open() {
+            handle.hide()?;
+        }
         handle.show(position, menu)
     }
 
