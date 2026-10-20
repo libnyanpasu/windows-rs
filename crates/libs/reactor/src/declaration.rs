@@ -223,6 +223,14 @@ pub enum ThemeBrush {
     CardStroke,
     SystemCritical,
     SystemCriticalBackground,
+    SubtleFillSecondary,
+    SubtleFillTertiary,
+    ControlFillDefault,
+    ControlFillSecondary,
+    DividerStroke,
+    ControlStrokeDefault,
+    TextSecondary,
+    AccentFillSecondary,
 }
 
 impl ThemeBrush {
@@ -236,6 +244,14 @@ impl ThemeBrush {
             Self::CardStroke => "CardStrokeColorDefaultBrush",
             Self::SystemCritical => "SystemFillColorCriticalBrush",
             Self::SystemCriticalBackground => "SystemFillColorCriticalBackgroundBrush",
+            Self::SubtleFillSecondary => "SubtleFillColorSecondaryBrush",
+            Self::SubtleFillTertiary => "SubtleFillColorTertiaryBrush",
+            Self::ControlFillDefault => "ControlFillColorDefaultBrush",
+            Self::ControlFillSecondary => "ControlFillColorSecondaryBrush",
+            Self::DividerStroke => "DividerStrokeColorDefaultBrush",
+            Self::ControlStrokeDefault => "ControlStrokeColorDefaultBrush",
+            Self::TextSecondary => "TextFillColorSecondaryBrush",
+            Self::AccentFillSecondary => "AccentFillColorSecondaryBrush",
         }
     }
 }

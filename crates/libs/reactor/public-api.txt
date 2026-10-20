@@ -454,13 +454,21 @@ pub windows_reactor::TextWrapping::Wrap
 pub windows_reactor::TextWrapping::WrapWholeWords
 #[repr(u8)] pub enum windows_reactor::ThemeBrush
 pub windows_reactor::ThemeBrush::Accent
+pub windows_reactor::ThemeBrush::AccentFillSecondary
 pub windows_reactor::ThemeBrush::AccentText
 pub windows_reactor::ThemeBrush::CardBackground
 pub windows_reactor::ThemeBrush::CardStroke
+pub windows_reactor::ThemeBrush::ControlFillDefault
+pub windows_reactor::ThemeBrush::ControlFillSecondary
+pub windows_reactor::ThemeBrush::ControlStrokeDefault
+pub windows_reactor::ThemeBrush::DividerStroke
 pub windows_reactor::ThemeBrush::PrimaryText
 pub windows_reactor::ThemeBrush::SolidBackground
+pub windows_reactor::ThemeBrush::SubtleFillSecondary
+pub windows_reactor::ThemeBrush::SubtleFillTertiary
 pub windows_reactor::ThemeBrush::SystemCritical
 pub windows_reactor::ThemeBrush::SystemCriticalBackground
+pub windows_reactor::ThemeBrush::TextSecondary
 impl core::convert::From<windows_reactor::ThemeBrush> for windows_reactor::Brush
 pub fn windows_reactor::Brush::from(windows_reactor::ThemeBrush) -> Self
 #[non_exhaustive] pub enum windows_reactor::ThemeTransition

@@ -1,6 +1,41 @@
 use super::*;
 
 #[test]
+fn theme_brush_tokens_use_winui_resource_keys() {
+    for (brush, key) in [
+        (
+            ThemeBrush::SubtleFillSecondary,
+            "SubtleFillColorSecondaryBrush",
+        ),
+        (
+            ThemeBrush::SubtleFillTertiary,
+            "SubtleFillColorTertiaryBrush",
+        ),
+        (
+            ThemeBrush::ControlFillDefault,
+            "ControlFillColorDefaultBrush",
+        ),
+        (
+            ThemeBrush::ControlFillSecondary,
+            "ControlFillColorSecondaryBrush",
+        ),
+        (ThemeBrush::DividerStroke, "DividerStrokeColorDefaultBrush"),
+        (
+            ThemeBrush::ControlStrokeDefault,
+            "ControlStrokeColorDefaultBrush",
+        ),
+        (ThemeBrush::TextSecondary, "TextFillColorSecondaryBrush"),
+        (
+            ThemeBrush::AccentFillSecondary,
+            "AccentFillColorSecondaryBrush",
+        ),
+    ] {
+        assert_eq!(brush.resource_key(), key);
+        assert_eq!(Brush::from(brush), Brush::Theme(brush));
+    }
+}
+
+#[test]
 fn font_icon_font_size_requires_finite_positive_values() {
     for value in [0.0, -1.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
         assert!(std::panic::catch_unwind(|| FontIcon::new().font_size(value)).is_err());
