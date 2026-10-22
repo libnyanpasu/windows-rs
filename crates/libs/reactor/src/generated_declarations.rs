@@ -3183,6 +3183,12 @@ impl ListView {
     enabled_methods!();
     reference_methods!(ListView);
     visual_methods!();
+    pub fn virtual_source(mut self, source: VirtualSource) -> Self {
+        self.0 = self
+            .0
+            .virtual_items(RelationId::VirtualItems, VirtualItems::Lazy(source));
+        self
+    }
     /// Rejects values outside this relation's generated type contract.
     ///
     /// ```compile_fail

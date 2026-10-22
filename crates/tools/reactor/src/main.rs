@@ -378,6 +378,19 @@ impl Object {
         self.handwritten
     }
 
+    /// The keyed visual container relation that `virtual_items` realizes lazily.
+    fn virtual_relation(&self) -> Option<&Relation> {
+        self.virtual_items.then(|| {
+            self.relations
+                .iter()
+                .find(|relation| {
+                    relation.realization == Realization::Container
+                        && relation.child == ObjectCategory::Visual
+                })
+                .expect("virtual_items requires a visual container relation")
+        })
+    }
+
     fn native_path(&self) -> Cow<'_, str> {
         self.native.as_deref().map_or_else(
             || Cow::Owned(format!("Microsoft.UI.Xaml.Controls.{}", self.name)),
@@ -3616,27 +3629,38 @@ fn generate_declarations(
             output.push_str("visual_methods!();\n");
         }
 
-        if object.virtual_items {
-            let relation = object
+        if let Some(relation) = object.virtual_relation() {
+            // An object whose eager items are another relation (ListView's DataItems) only
+            // gains the lazy source.
+            if object
                 .relations
                 .iter()
-                .find(|relation| relation.realization == Realization::Container)
-                .unwrap();
+                .filter(|relation| relation.realization == Realization::Container)
+                .count()
+                == 1
+            {
+                output.push_str(&format!(
+                    "                pub fn item(mut self, key: impl Into<Key>, visual: impl Into<View>) -> Self {{\n\
+                    self.0 = self.0.virtual_item(RelationId::{}, keyed(key, visual));\nself\n}}\n\
+                     pub fn items(mut self, items: impl IntoIterator<Item = KeyedView>) -> Self {{\n\
+                     self.0 = self.0.virtual_items(RelationId::{}, \
+                     VirtualItems::eager(items));\nself\n}}\n",
+                    relation.name, relation.name
+                ));
+            }
             output.push_str(&format!(
-                "                pub fn item(mut self, key: impl Into<Key>, visual: impl Into<View>) -> Self {{\n\
-                self.0 = self.0.virtual_item(RelationId::{}, keyed(key, visual));\nself\n}}\n\
-                 pub fn items(mut self, items: impl IntoIterator<Item = KeyedView>) -> Self {{\n\
-                 self.0 = self.0.virtual_items(RelationId::{}, \
-                 VirtualItems::eager(items));\nself\n}}\n\
-                 pub fn virtual_source(mut self, source: VirtualSource) -> Self {{\n\
+                "pub fn virtual_source(mut self, source: VirtualSource) -> Self {{\n\
                  self.0 = self.0.virtual_items(RelationId::{}, \
                  VirtualItems::Lazy(source));\nself\n}}\n",
-                relation.name, relation.name, relation.name
+                relation.name
             ));
         }
 
         for relation in &object.relations {
-            if object.virtual_items && relation.realization == Realization::Container {
+            if object
+                .virtual_relation()
+                .is_some_and(|virtual_relation| virtual_relation.name == relation.name)
+            {
                 continue;
             }
             let method = relation

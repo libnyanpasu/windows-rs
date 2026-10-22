@@ -283,6 +283,7 @@ pub enum RelationId {
     Roots,
     SecondaryCommands,
     TabItems,
+    VirtualItems,
 }
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum EventId {
@@ -3273,14 +3274,24 @@ pub fn relation_contracts(kind: ObjectType) -> &'static [RelationContract] {
                 realization: Realization::Structural,
             },
         ],
-        ObjectType::ListView => &[RelationContract {
-            id: RelationId::Items,
-            child: ObjectCategory::Data,
-            allowed_objects: &[],
-            cardinality: Cardinality::Many,
-            identity: Identity::Keyed,
-            realization: Realization::Container,
-        }],
+        ObjectType::ListView => &[
+            RelationContract {
+                id: RelationId::Items,
+                child: ObjectCategory::Data,
+                allowed_objects: &[],
+                cardinality: Cardinality::Many,
+                identity: Identity::Keyed,
+                realization: Realization::Container,
+            },
+            RelationContract {
+                id: RelationId::VirtualItems,
+                child: ObjectCategory::Visual,
+                allowed_objects: &[],
+                cardinality: Cardinality::Many,
+                identity: Identity::Keyed,
+                realization: Realization::Container,
+            },
+        ],
         ObjectType::DataItem => &[RelationContract {
             id: RelationId::Content,
             child: ObjectCategory::Visual,

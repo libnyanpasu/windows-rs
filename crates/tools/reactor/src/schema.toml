@@ -635,6 +635,7 @@ name = "ListView"
 enabled = true
 reference = true
 handwritten = true
+virtual_items = true
 
 [[objects.properties]]
 name = "HorizontalScroll"
@@ -670,6 +671,12 @@ cardinality = "Many"
 identity = "Keyed"
 realization = "Container"
 item = "DataItem"
+
+[[objects.relations]]
+name = "VirtualItems"
+cardinality = "Many"
+identity = "Keyed"
+realization = "Container"
 
 [[objects.events]]
 name = "SelectionChanged"
