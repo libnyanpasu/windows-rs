@@ -123,9 +123,10 @@ fn list_horizontal_scroll_reports_offsets_and_clears() {
         let timer = native::DispatcherQueue::GetForCurrentThread()?.CreateTimer()?;
         timer.SetInterval(TimeSpan::try_from(Duration::from_millis(50)).unwrap())?;
         let tick = timer.Tick(move |sender, _| {
-            let viewer = template_scroll_viewer(&element.cast().unwrap())
-                .unwrap()
-                .unwrap();
+            // The template applies on a layout pass after the window shows.
+            let Some(viewer) = template_scroll_viewer(&element.cast().unwrap()).unwrap() else {
+                return;
+            };
             let mut runtime = runtime.borrow_mut();
             if step.replace(1) == 0 {
                 assert!(
@@ -192,9 +193,10 @@ fn list_scroll_to_before_load_applies_both_axes_and_reports_offsets() {
         let timer = native::DispatcherQueue::GetForCurrentThread()?.CreateTimer()?;
         timer.SetInterval(TimeSpan::try_from(Duration::from_millis(50)).unwrap())?;
         let tick = timer.Tick(move |sender, _| {
-            let viewer = template_scroll_viewer(&element.cast().unwrap())
-                .unwrap()
-                .unwrap();
+            // The template applies on a layout pass after the window shows.
+            let Some(viewer) = template_scroll_viewer(&element.cast().unwrap()).unwrap() else {
+                return;
+            };
             let mut runtime = runtime.borrow_mut();
             if step.replace(step.get() + 1) == 0 {
                 return;
