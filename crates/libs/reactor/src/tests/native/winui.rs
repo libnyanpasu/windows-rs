@@ -90,6 +90,131 @@ fn list_scroll_realizes_offscreen_items_with_custom_containers_and_no_selection(
 
 #[test]
 #[ignore = "initializes WinUI; run alone on a Windows desktop (no injected input)"]
+fn list_horizontal_scroll_reports_offsets_and_clears() {
+    App::run_with(|app| {
+        let offsets = Rc::new(RefCell::new(Vec::new()));
+        let recorded = Rc::clone(&offsets);
+        let view = move |scroll: bool| {
+            let offsets = Rc::clone(&recorded);
+            ListView::new()
+                .height(160.0)
+                .horizontal_scroll(scroll)
+                .on_horizontal_offset_changed(move |offset| offsets.borrow_mut().push(offset))
+                .items((0usize..30).map(|i| {
+                    DataItem::new(i, i.to_string()).content(
+                        TextBlock::new()
+                            .text(i.to_string())
+                            .width(600.0)
+                            .height(40.0),
+                    )
+                }))
+        };
+        let mut runtime = Runtime::new(WinUiAdapter::default());
+        runtime.update(view(true)).unwrap();
+        let root = runtime.graph().root().unwrap();
+        let window = runtime
+            .adapter_mut()
+            .create_window_with_policy(root, &WindowPolicy::new().client_size(300.0, 200.0))?;
+        window.activate()?;
+        let element = runtime.adapter().ui_element(root)?;
+        let runtime = RefCell::new(runtime);
+        let app = app.clone();
+        let step = Cell::new(0);
+        let timer = native::DispatcherQueue::GetForCurrentThread()?.CreateTimer()?;
+        timer.SetInterval(TimeSpan::try_from(Duration::from_millis(50)).unwrap())?;
+        let tick = timer.Tick(move |sender, _| {
+            let viewer = template_scroll_viewer(&element.cast().unwrap())
+                .unwrap()
+                .unwrap();
+            let mut runtime = runtime.borrow_mut();
+            if step.replace(1) == 0 {
+                assert!(
+                    viewer
+                        .ChangeViewWithOptionalAnimation(Some(100.0), None, None, true)
+                        .unwrap()
+                );
+                return;
+            }
+            sender.as_ref().unwrap().Stop().unwrap();
+            runtime.dispatch_native_events().unwrap();
+            assert_eq!(*offsets.borrow(), [100.0]);
+            runtime.update(view(false)).unwrap();
+            element.UpdateLayout().unwrap();
+            // Disabled horizontal scrolling constrains content to the viewport.
+            assert_eq!(viewer.HorizontalOffset().unwrap(), 0.0);
+            window.close().unwrap();
+            app.exit().unwrap();
+        })?;
+        timer.Start()?;
+        Ok((timer, tick))
+    })
+    .unwrap();
+}
+
+#[test]
+#[ignore = "initializes WinUI; run alone on a Windows desktop (no injected input)"]
+fn list_scroll_to_before_load_applies_both_axes_and_reports_offsets() {
+    App::run_with(|app| {
+        let reference = ElementRef::<ListView>::new();
+        let vertical = Rc::new(RefCell::new(Vec::new()));
+        let recorded = Rc::clone(&vertical);
+        let mut runtime = Runtime::new(WinUiAdapter::default());
+        runtime
+            .update(
+                ListView::new()
+                    .height(160.0)
+                    .element_ref(&reference)
+                    .horizontal_scroll(true)
+                    .on_horizontal_offset_changed(|_| {})
+                    .on_vertical_offset_changed(move |offset| recorded.borrow_mut().push(offset))
+                    .items((0usize..100).map(|i| {
+                        DataItem::new(i, i.to_string()).content(
+                            TextBlock::new()
+                                .text(i.to_string())
+                                .width(600.0)
+                                .height(40.0),
+                        )
+                    })),
+            )
+            .unwrap();
+        // Queued before the list has a template or an extent.
+        assert!(reference.request_scroll_to(Some(100.0), Some(800.0)));
+        runtime.dispatch_native_events().unwrap();
+        let root = runtime.graph().root().unwrap();
+        let window = runtime
+            .adapter_mut()
+            .create_window_with_policy(root, &WindowPolicy::new().client_size(300.0, 200.0))?;
+        window.activate()?;
+        let element = runtime.adapter().ui_element(root)?;
+        let runtime = RefCell::new(runtime);
+        let app = app.clone();
+        let step = Cell::new(0);
+        let timer = native::DispatcherQueue::GetForCurrentThread()?.CreateTimer()?;
+        timer.SetInterval(TimeSpan::try_from(Duration::from_millis(50)).unwrap())?;
+        let tick = timer.Tick(move |sender, _| {
+            let viewer = template_scroll_viewer(&element.cast().unwrap())
+                .unwrap()
+                .unwrap();
+            let mut runtime = runtime.borrow_mut();
+            if step.replace(step.get() + 1) == 0 {
+                return;
+            }
+            sender.as_ref().unwrap().Stop().unwrap();
+            assert_eq!(viewer.HorizontalOffset().unwrap(), 100.0);
+            assert_eq!(viewer.VerticalOffset().unwrap(), 800.0);
+            runtime.dispatch_native_events().unwrap();
+            assert_eq!(*vertical.borrow(), [800.0]);
+            window.close().unwrap();
+            app.exit().unwrap();
+        })?;
+        timer.Start()?;
+        Ok((timer, tick))
+    })
+    .unwrap();
+}
+
+#[test]
+#[ignore = "initializes WinUI; run alone on a Windows desktop (no injected input)"]
 fn list_item_container_style_applies_to_realized_items_and_clears() {
     App::run_with(|app| {
         let options = ItemContainerOptions {

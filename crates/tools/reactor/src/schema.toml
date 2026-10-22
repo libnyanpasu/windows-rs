@@ -637,6 +637,10 @@ reference = true
 handwritten = true
 
 [[objects.properties]]
+name = "HorizontalScroll"
+adapter = "horizontal_scroll"
+
+[[objects.properties]]
 name = "ItemContainerStyle"
 adapter = "item_container"
 validation = "finite_non_negative"
@@ -675,6 +679,14 @@ observes = "SelectedIndex"
 name = "DragItemsCompleted"
 field = "on_reordered"
 adapter = "string_list"
+
+[[objects.events]]
+name = "HorizontalOffsetChanged"
+value = "F64"
+
+[[objects.events]]
+name = "VerticalOffsetChanged"
+value = "F64"
 
 [[objects]]
 name = "DataItem"

@@ -181,6 +181,7 @@ enum PropertyAdapter {
     ImplicitTranslation,
     ImplicitTranslationTransition,
     InspectableString,
+    HorizontalScroll,
     InspectableStringList,
     ItemContainer,
     KeyAccelerators,
@@ -218,6 +219,7 @@ impl PropertyAdapter {
             Self::ImplicitTranslation => "Vector2",
             Self::InspectableString | Self::PathData | Self::RichEditText | Self::Uri => "String",
             Self::InspectableStringList => "StringList",
+            Self::HorizontalScroll => "Bool",
             Self::ItemContainer => "ItemContainerOptions",
             Self::KeyAccelerators => "KeyAccelerators",
             Self::NativeColor => "Color",
@@ -241,6 +243,7 @@ impl PropertyAdapter {
             Self::GridColumns => Some("columns"),
             Self::KeyAccelerators => Some("key_accelerators"),
             Self::ResourceOverrides => Some("resource_overrides"),
+            Self::HorizontalScroll => Some("horizontal_scroll"),
             Self::ItemContainer => Some("item_container"),
             _ => None,
         }
@@ -2044,7 +2047,12 @@ fn generate_native(schema: &Schema, metadata: &tool_reactor_metadata::MetadataRe
             } else {
                 format!("put_{native}")
             };
-            let interface = metadata.resolve(owner, &method).unwrap().short_name();
+            // An attached ScrollViewer property set by its adapter, not a member of owner.
+            let interface = if property.adapter == Some(PropertyAdapter::HorizontalScroll) {
+                ""
+            } else {
+                metadata.resolve(owner, &method).unwrap().short_name()
+            };
             emit_native_property_arms(
                 &mut output,
                 &format!(
@@ -2477,6 +2485,14 @@ fn emit_native_property_arms(
     target_class: &str,
     metadata: &tool_reactor_metadata::MetadataResolver,
 ) {
+    if adapter == Some(PropertyAdapter::HorizontalScroll) {
+        output.push_str(&format!(
+            "{pattern}None) => Some(set_list_horizontal_scroll({target}, false)),
+             {pattern}Some(PropertyValue::Bool(value))) =>              Some(set_list_horizontal_scroll({target}, *value)),
+"
+        ));
+        return;
+    }
     if adapter == Some(PropertyAdapter::ItemContainer) {
         output.push_str(&format!(
             "{pattern}None) => Some(set_list_item_container({target}, None)),\n\

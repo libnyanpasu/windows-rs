@@ -16,8 +16,33 @@ struct NativeListView {
     value: native::ListView,
     selection_changed: Rc<RefCell<NativeSelectionIndexEvent>>,
     drag_items_completed: Rc<RefCell<NativeStringListEvent>>,
+    horizontal_offset_changed: Rc<RefCell<NativeF64Event>>,
+    vertical_offset_changed: Rc<RefCell<NativeF64Event>>,
+    /// A ScrollTo that arrived before the template ScrollViewer existed.
+    pending_scroll: Rc<Cell<Option<(Option<f64>, Option<f64>)>>>,
     _selection_changed: windows_core::EventRevoker,
     _drag_items_completed: windows_core::EventRevoker,
+    /// Subscribes to the template ScrollViewer, which exists only once the list loads.
+    _loaded: windows_core::EventRevoker,
+    _view_changed: Rc<RefCell<Option<windows_core::EventRevoker>>>,
+}
+
+/// The ListView template's ScrollViewer, found breadth-first; None before the template
+/// is applied.
+fn template_scroll_viewer(
+    root: &native::DependencyObject,
+) -> windows_core::Result<Option<native::ScrollViewer>> {
+    let mut pending = VecDeque::from([root.clone()]);
+    while let Some(parent) = pending.pop_front() {
+        for index in 0..native::VisualTreeHelper::GetChildrenCount(&parent)? {
+            let child = native::VisualTreeHelper::GetChild(&parent, index)?;
+            if let Ok(viewer) = child.cast::<native::ScrollViewer>() {
+                return Ok(Some(viewer));
+            }
+            pending.push_back(child);
+        }
+    }
+    Ok(None)
 }
 
 struct NativeTreeView {

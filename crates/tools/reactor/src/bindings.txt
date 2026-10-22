@@ -505,3 +505,7 @@ Microsoft::UI::Xaml::Controls::IControl::{get_Padding, get_HorizontalContentAlig
 Microsoft::UI::Xaml::IFrameworkElement::get_MinHeight
 Microsoft::UI::Xaml::Controls::IListViewBase::ScrollIntoViewWithAlignment
 Microsoft::UI::Xaml::Controls::ScrollIntoViewAlignment
+Microsoft::UI::Xaml::Controls::IScrollViewer::{add_ViewChanged, ChangeViewWithOptionalAnimation, get_HorizontalOffset, get_VerticalOffset, remove_ViewChanged}
+Microsoft::UI::Xaml::Controls::IScrollViewerStatics::{SetHorizontalScrollBarVisibility, SetHorizontalScrollMode}
+Microsoft::UI::Xaml::Controls::ScrollMode::{Disabled, Enabled}
+Microsoft::UI::Xaml::Media::VisualTreeHelper::{GetChild, GetChildrenCount}

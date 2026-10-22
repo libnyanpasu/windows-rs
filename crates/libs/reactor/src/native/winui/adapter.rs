@@ -312,6 +312,23 @@ impl Adapter for WinUiAdapter {
                 })();
                 completion.call(result.map_err(integration_error));
             }
+            ImperativeRequest::ScrollTo {
+                object,
+                horizontal,
+                vertical,
+            } => {
+                let Some(Handle::ListView(list)) = self.handles.get(&object) else {
+                    return Ok(());
+                };
+                match template_scroll_viewer(&list.value.cast()?)? {
+                    Some(viewer) => {
+                        // Measure items declared in this update, so the extent admits the offsets.
+                        list.value.cast::<native::UIElement>()?.UpdateLayout()?;
+                        viewer.ChangeViewWithOptionalAnimation(horizontal, vertical, None, true)?;
+                    }
+                    None => list.pending_scroll.set(Some((horizontal, vertical))),
+                }
+            }
             ImperativeRequest::Focus { object, completion } => {
                 completion.call(
                     self.focus(object)
