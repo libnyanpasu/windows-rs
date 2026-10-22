@@ -805,6 +805,8 @@ fn list_view_items_are_virtual_only_with_a_virtual_source() {
     assert!(sets_source(mutations));
     // Rows wait for the native list to prepare their containers.
     assert_eq!(runtime.graph().object_count(), 1);
+    let list = runtime.graph().root().unwrap();
+    assert_eq!(runtime.graph().virtual_item_count(list), Some(2));
 
     // The item mode is fixed when the list mounts; a key replaces the list instead.
     let mut runtime = Runtime::new(RecordingAdapter::new());
